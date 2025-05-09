@@ -7,22 +7,9 @@ let predictions = [];
 let circleX, circleY;
 const circleSize = 100;
 
-function preload() {
-  // Initialize HandPose model with flipped video input
-  handPose = ml5.handPose({ flipped: true });
-}
-
-function mousePressed() {
-  console.log(hands);
-}
-
-function gotHands(results) {
-  hands = results;
-}
-
 function setup() {
   createCanvas(640, 480);
-  video = createCapture(VIDEO, { flipped: true });
+  video = createCapture(VIDEO);
   video.size(width, height);
   video.hide();
 
