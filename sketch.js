@@ -9,32 +9,42 @@ const circleSize = 100;
 
 function setup() {
   createCanvas(640, 480);
-  video = createCapture(VIDEO);
-  video.size(width, height);
-  video.hide();
 
+  // 初始化攝影機
+  video = createCapture(VIDEO, function() {
+    console.log("Video capture started");
+  });
+  video.size(width, height);
+  video.hide(); // 隱藏原始影像，使用 p5 畫布顯示
+
+  // 初始化 Handpose 模型
   handpose = ml5.handpose(video, modelReady);
+
+  // 當模型預測時，更新 predictions
   handpose.on("predict", results => {
     predictions = results;
   });
 
-  // Initialize circle position at the center of the canvas
+  // 初始化圓的位置
   circleX = width / 2;
   circleY = height / 2;
 }
 
 function modelReady() {
-  console.log("Model ready!");
+  console.log("Handpose model loaded!");
 }
 
 function draw() {
+  // 繪製攝影機影像
+  background(220); // 確保畫布清晰
   image(video, 0, 0, width, height);
 
-  // Draw the circle
+  // 繪製圓
   fill(255, 0, 0, 150);
   noStroke();
   ellipse(circleX, circleY, circleSize);
 
+  // 繪製手部關鍵點
   drawKeypoints();
 }
 
@@ -43,7 +53,7 @@ function drawKeypoints() {
     const hand = predictions[i];
     const keypoints = hand.landmarks;
 
-    // Draw lines for keypoints
+    // 繪製手部關鍵點的連接線
     for (let j = 0; j < 4; j++) {
       line(keypoints[j][0], keypoints[j][1], keypoints[j + 1][0], keypoints[j + 1][1]);
     }
@@ -60,12 +70,12 @@ function drawKeypoints() {
       line(keypoints[j][0], keypoints[j][1], keypoints[j + 1][0], keypoints[j + 1][1]);
     }
 
-    // Draw circles on fingertips
+    // 繪製食指指尖的圓
     fill(0, 255, 0);
     noStroke();
-    ellipse(keypoints[8][0], keypoints[8][1], 20); // Left or right index finger
+    ellipse(keypoints[8][0], keypoints[8][1], 20); // 左或右手食指
 
-    // Check if the fingertip touches the circle
+    // 檢查食指是否觸碰到圓
     if (dist(keypoints[8][0], keypoints[8][1], circleX, circleY) < circleSize / 2) {
       circleX = keypoints[8][0];
       circleY = keypoints[8][1];
